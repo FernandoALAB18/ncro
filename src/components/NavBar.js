@@ -1,32 +1,10 @@
-import React, { useEffect, useState } from 'react';
+// frontend/src/components/NavBar.js
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
 
 function NavBar() {
-  const { token, logout } = useAuth();
-  const [wallets, setWallets] = useState([]);
-  const [selectedWalletId, setSelectedWalletId] = useState(localStorage.getItem('selectedWalletId') || '');
-
-  useEffect(() => {
-    const fetchWallets = async() => {
-      if(!token) return;
-      const res = await api.get('/wallet/list', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setWallets(res.data);
-      if(!selectedWalletId && res.data.length > 0) {
-        const defaultId = res.data[0].id.toString();
-        setSelectedWalletId(defaultId);
-        localStorage.setItem('selectedWalletId', defaultId);
-      }
-    };
-    fetchWallets();
-  }, [token, selectedWalletId]);
-
-  const handleWalletChange = (e) => {
-    setSelectedWalletId(e.target.value);
-    localStorage.setItem('selectedWalletId', e.target.value);
-  };
+  const { currentUserId, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -36,33 +14,26 @@ function NavBar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <img src="/mi-logo.png" alt="Mi Logo" className="logo" />
+        <img src="/mi-logo.png" alt="Logo" className="logo"/>
         <div className="navbar-menu">
-          {token && (
-            <>
-              <a href="/dashboard">Dashboard</a>
-              <a href="/deposit">Deposit</a>
-              <a href="/withdraw">Withdraw</a>
-              <a href="/history">History</a>
-              <a href="/card">Card</a>
-              <a href="/manage-wallets">Manage Wallets</a>
-            </>
-          )}
+          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/deposit">Deposit</Link>
+          <Link to="/withdraw">Withdraw</Link>
+          <Link to="/card">Card</Link>
+          <Link to="/history">History</Link>
+          <Link to="/manage-wallets">Manage Wallets</Link>
         </div>
       </div>
-      {token && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {wallets.length > 0 && (
-            <select value={selectedWalletId} onChange={handleWalletChange}>
-              {wallets.map(w => (
-                <option key={w.id} value={w.id.toString()}>{w.name}</option>
-              ))}
-            </select>
-          )}
-          <button className="main-wallet-btn" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
+
+      {/* Si el usuario está logueado (currentUserId existe), mostramos logout.
+         Si no, mostramos Register y Login */}
+      {currentUserId ? (
+        <button className="main-wallet-btn" onClick={handleLogout}>Logout</button>
+      ) : (
+        <>
+          <button className="main-wallet-btn" onClick={()=>window.location.href='/register'}>Register</button>
+          <button className="main-wallet-btn" onClick={()=>window.location.href='/'} style={{marginLeft:'10px'}}>Login</button>
+        </>
       )}
     </nav>
   );

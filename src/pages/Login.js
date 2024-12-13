@@ -1,29 +1,31 @@
+// frontend/src/pages/Login.js
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { token, login } = useAuth();
+  const { currentUserId, login } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(token) {
+    if(currentUserId) {
       navigate('/dashboard');
     }
-  }, [token, navigate]);
+  }, [currentUserId, navigate]);
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const res = await api.post('/auth/login', { email, password });
-      login(res.data.token);
-    } catch(err) {
-      console.error(err);
-      alert('Login failed');
+    const data = JSON.parse(localStorage.getItem('data')) || {};
+    if(!data.users) data.users = [];
+    const user = data.users.find(u=>u.email===email && u.password===password);
+    if(!user) {
+      alert('Login failed, incorrect email or password.');
+      return;
     }
+
+    login(user.id);
   };
 
   return (

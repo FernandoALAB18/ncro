@@ -1,32 +1,36 @@
 // frontend/src/context/AuthContext.js
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { setAuthToken } from '../services/api';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [currentUserId, setCurrentUserId] = useState(()=>{
+    const data = JSON.parse(localStorage.getItem('data')) || {};
+    return data.currentUserId || null;
+  });
 
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem('token', token);
-      setAuthToken(token);
-    } else {
-      localStorage.removeItem('token');
-      setAuthToken(null);
-    }
-  }, [token]);
-
-  const login = (newToken) => {
-    setToken(newToken);
+  const login = (userId) => {
+    const data = JSON.parse(localStorage.getItem('data')) || {};
+    data.currentUserId = userId;
+    localStorage.setItem('data', JSON.stringify(data));
+    setCurrentUserId(userId);
   };
 
   const logout = () => {
-    setToken('');
+    const data = JSON.parse(localStorage.getItem('data')) || {};
+    delete data.currentUserId;
+    localStorage.setItem('data', JSON.stringify(data));
+    setCurrentUserId(null);
+  };
+
+  const getCurrentUser = () => {
+    const data = JSON.parse(localStorage.getItem('data')) || {};
+    if(!data.users) return null;
+    return data.users.find(u=>u.id===currentUserId) || null;
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ currentUserId, login, logout, getCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );

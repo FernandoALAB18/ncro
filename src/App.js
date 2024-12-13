@@ -6,7 +6,7 @@ import './styles.css';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-// import Deposit from './pages/Deposit'; // Comentamos la importación
+import Deposit from './pages/Deposit';
 import Withdraw from './pages/Withdraw';
 import History from './pages/History';
 import CardPage from './pages/Card';
@@ -22,7 +22,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          {/* Eliminamos la ruta /deposit por ahora */}
+          <Route path="/deposit" element={<Deposit />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/history" element={<History />} />
           <Route path="/card" element={<CardPage />} />
